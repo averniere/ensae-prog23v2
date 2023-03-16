@@ -41,6 +41,11 @@ def tri_camion(camions):
         p=power
     return new_list
 
+'''
+On définit une fonction qui renvoie pour un fichier "routes" le dictionnaire qui associe aux trajets
+effectuables par au moins l'un des camion, la puissance, le cout et l'utilité du camion qui maximise 
+cette dernière. 
+'''
 
 def best_camion(routes,camions,puissances_min):
     d={}
@@ -49,9 +54,9 @@ def best_camion(routes,camions,puissances_min):
         src,dest=routes[k][0]
         power=puissances_min[k]
         p,c= False, max([camions[k][1] for k in range (len(camions))])
-        for k in range len(camions):
+        for k in range (len(camions)):
             if camions[k][0]>=power and camions[0][1]<c:
-                p=camion[k][0]
+                p=camions[k][0]
                 c=camions[0][1]
         if p!=False:
             utility=profit-c
