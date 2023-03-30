@@ -26,7 +26,8 @@ def routes_from_file(filename): # Fonction permettant d'ouvrir les fichiers rout
 def power_path(filename): # Fonction permettant d'ouvrir les fichiers routes.out
     with open(filename, "r") as file:
         L=file.read().splitlines()
-    return L
+        L0=[int(L[k]) for k in range (len(L))]
+    return L0
 
 '''
 On créé une fonction qui créé une liste de camions mise à jour, ne contenant pas les camions "inutiles".
@@ -50,19 +51,20 @@ effectuables par au moins l'un des camion, la puissance, le cout et l'utilité d
 cette dernière. Elle prend en argument la liste des camions, la liste des trajets et la liste des 
 puissances minimales nécessaires pour effectuer ces trajets. 
 '''
+''' Implementation of the greedy algorithm'''
 
 def best_camion(routes,camions,puissances_min):
     #d={}
     L=[]
     for k in range (len(routes)):
         profit=routes[k][1]
+        #print(profit)
         src,dest=routes[k][0]
         power=puissances_min[k]
         p,c= False, max([camions[k][1] for k in range (len(camions))])
         for j in range (len(camions)):
-            print(type(camions[j][0]))
-            print(type(power))
             if camions[j][0]>=power and camions[j][1]<c:
+                power=camions[j][0]
                 p=camions[j][0]
                 c=camions[j][1]
         if p!=False: #Si l'on a trouvé au moins un camion pouvant parcourir le trajet 
@@ -77,20 +79,21 @@ def knapsack (routes, camions, puissances_min):
     profit=0
     L=best_camion(routes, camions, puissances_min)
     new_L=sorted(L, key=lambda x:x[4], reverse=True)
+    print(new_L)
     stop=False
-    k=0
+    k=1
     while stop!=True:
-        src, dest=new_L[k][0]
+        src, dest=new_L[-k][0]
         pow=new_L[k][1]
         cost=new_L[k][2]
         earn=new_L[k][3]
-        if income-cost>=0:
+        if income-cost>=0 and earn-cost>0:
             Buy[pow].append((src, dest))
             Buy[pow][0]+=1
-            profit+=earn-cost
+            profit+=(earn-cost)
             income-=cost
             k+=1
-        if income-cost<0:
+        if income-cost<0 or earn-cost<0:
             k+=1
         if k==len(new_L):
             stop=True
@@ -105,16 +108,18 @@ def final_knapsack(truckname,routename1,routename2):
     return buy, profit 
 
 '''Tests de l'algorithme naïf'''
-truckname=r"C:\Users\auran\OneDrive\Documents\ensae\1A\Projet de programmation\ensae-prog23v2\input\trucks.0.in"
-routename1=r"C:\Users\auran\OneDrive\Documents\ensae\1A\Projet de programmation\ensae-prog23v2\input\routes.2.in"
-routename2=r"C:\Users\auran\OneDrive\Documents\ensae\1A\Projet de programmation\ensae-prog23v2\input\routes.2.out"
+truckname=r"C:\Users\auran\OneDrive\Documents\ensae\1A\Projet de programmation\ensae-prog23v2\input\trucks.2.in"
+routename1=r"C:\Users\auran\OneDrive\Documents\ensae\1A\Projet de programmation\ensae-prog23v2\input\routes.1.in"
+routename2=r"C:\Users\auran\OneDrive\Documents\ensae\1A\Projet de programmation\ensae-prog23v2\input\routes.1 (1).out"
 
-print(final_knapsack(truckname, routename1, routename2))
-            
-                
+#print(final_knapsack(truckname, routename1, routename2))
+camions1=truck_from_file(truckname)
+routename11=routes_from_file(routename1)
+powers=power_path(routename2)              
+#print(best_camion(routename11,camions1,powers))
+print(knapsack(routename11, camions1, powers))
 
-
-
+''' Implementation of the dynamic algorithm'''
 
 
 
