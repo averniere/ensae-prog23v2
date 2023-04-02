@@ -1,8 +1,11 @@
 from graph import Graph
 from main import kruskal,new_get_power
+import numpy as np
+import random as rd 
 
 
-B=25*10**9
+B=25*(10**3)
+# B=25*10**9
 
 def truck_from_file(filename): # Fonction permettant d'ouvrir les fichiers trucks
     L=[]
@@ -51,7 +54,6 @@ effectuables par au moins l'un des camion, la puissance, le cout et l'utilité d
 cette dernière. Elle prend en argument la liste des camions, la liste des trajets et la liste des 
 puissances minimales nécessaires pour effectuer ces trajets. 
 '''
-''' Implementation of the greedy algorithm'''
 
 def best_camion(routes,camions,puissances_min):
     #d={}
@@ -73,6 +75,8 @@ def best_camion(routes,camions,puissances_min):
             L.append([(src, dest),p,c,profit,res])
     return L
 
+''' Implementation of the greedy algorithm'''
+
 def knapsack (routes, camions, puissances_min):
     income=B
     Buy={camions[k][0]:[0] for k in range (len(camions))}
@@ -83,7 +87,7 @@ def knapsack (routes, camions, puissances_min):
     stop=False
     k=1
     while stop!=True:
-        src, dest=new_L[-k][0]
+        src, dest=new_L[k][0]
         pow=new_L[k][1]
         cost=new_L[k][2]
         earn=new_L[k][3]
@@ -117,12 +121,114 @@ camions1=truck_from_file(truckname)
 routename11=routes_from_file(routename1)
 powers=power_path(routename2)              
 #print(best_camion(routename11,camions1,powers))
-print(knapsack(routename11, camions1, powers))
+#print(knapsack(routename11, camions1, powers))
 
 ''' Implementation of the dynamic algorithm'''
 
+def dynamic_prog(routes, camions, powers):
+    L=best_camion(routes, camions, powers)
+    n=len(L)
+    table=[[0 for i in range (B+1)] for j in range (n+1)]
+    for i in range (n+1):
+        for j in range (B+1):
+            cost=L[i-1][2]
+            earn=L[i-1][3]
+            profit=earn-cost
+            if i==0 or j==0:
+                table[i][j]=0
+            elif cost<=j:
+                table[i][j]=max(profit+table[i-1][j-cost], table[i-1][j])
+            else:
+                table[i][j]=table[i-1][j]
+            print(i,j)
+    return table[n][B]
+
+def knapsack2(fileroute,filetruck, filepowers):
+    truck0=truck_from_file(filetruck)
+    trucks=tri_camion(truck0)
+    routes=routes_from_file(fileroute)
+    powers=power_path(filepowers)
+    return dynamic_prog(routes, trucks, powers)
 
 
+#print(knapsack2(routename1,truckname,routename2))
 
+''' Implementation of a solution inspired by the genetic algorithms'''
 
+#Fonction générant un génome de taille length=len(best_camions(routes, camions, puissances)). Obtenir la
+#valeur 1 (resp.0) au i-ème indice, signifie que l'on choisi l'association camion-trajet de best_camions[i]
+#(resp. on ne la choisit pas).
+
+def generate_genome(length):
+    return rd.choices([0,1], k=length)
+
+def generate_population(N, length):
+    return [generate_genome(length) for k in range (N)]
+
+#Fonction déterminant pour chaque génome le profit pouvant être réalisé et retournant par défaut 0 si
+#l'achat des camions nécessaires dépasse le budget.
+def fitness(L, genome, budget):
+    cost=0
+    profit=0
+    for i, l in enumerate(L):
+        if genome[i]==1:
+            cost+=l[2]
+            profit+=(l[3]-l[2])
+            if cost>budget:
+                return 0
+    return profit
+
+#Sélection d'une paire de génomes ayant presque sûrement les meilleurs profits parmi la population de départ.
+#Cela équivaut à la sélection des meilleurs individus pour la reproduction.
+def selection_pair(population, L, budget):
+    return rd.choices(population, weights=[fitness(L,genome,budget) for genome in population], k=2)
+
+#Croisement des individus sélectionnés pour obtenir un nouveau génome
+def crossover(gen1,gen2):
+    if len(gen1)<2:
+        return gen1,gen2
+    r=rd.randint(0,len(gen1)-1)
+    return np.concatenate((gen1[:r],gen2[r:])), np.concatenate((gen1[r:],gen2[:r]))
+
+def mutation(genome, proba, val):
+    for k in range (val):
+        i=rd.randint(0,len(genome)-1)
+        if rd.random()<proba:
+            genome[i]=abs(genome[i]-1)
+    return genome
+
+def evolution(L, N, budget):
+    proba=0.5
+    length=len(L)
+    population=generate_population(N,length)
+    for k in range (1000):
+        population_sorted=sorted(population, key=lambda genome: fitness(L,genome,budget), reverse=True)
+        selected=population_sorted[:2]
+        ind_a,ind_b=crossover(selected[0], selected[1])
+        ind_c, ind_d=mutation(ind_a,proba,1), mutation(ind_b,proba,1)
+        selected+=[ind_a,ind_b,ind_c,ind_d]
+        population=selected
+    population=sorted(population,key=lambda genome:fitness(L,genome, budget), reverse=True)
+    return population
+
+def results(fileroute,filetrucks,filepowers,budget,N=10):
+    routes=routes_from_file(fileroute)
+    trucks=truck_from_file(filetrucks)
+    powers=power_path(filepowers)
+    L=best_camion(routes,trucks,powers)
+    best_pop=evolution(L,N,budget)
+    best_ind=best_pop[0]
+    Buy={}
+    for i,l in enumerate(L):
+        if best_ind[i]==1:
+            src,dest=l[0]
+            if l[1] not in Buy.keys():
+                Buy[l[1]]=[1,(src,dest)]
+            else:
+                Buy[l[1]][0]+=1
+                Buy[l[1]].append((src,dest))
+    profit=fitness(L,best_ind,budget)
+    return Buy,profit 
+
+print(results(routename1,truckname,routename2,B,N=10))
 
