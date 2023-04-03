@@ -174,11 +174,9 @@ def new_get_power(parents, depths, src,dest):
     n1=0
     n2=0
     if depth_src>depth_dest:
-        n1=src
-        n2=dest
+        n1, n2=src, dest
     else:
-        n1=dest
-        n2=src
+        n1, n2=dest, src
     res=depths[n2]
     while depths[n1]!=res: #tant que les profondeurs des noeuds dans le graphe sont différentes
         power=max(parents[n1][1],power) #on met à jour la puissance car l'on est en train de parcourir le chemin entre les noeuds
