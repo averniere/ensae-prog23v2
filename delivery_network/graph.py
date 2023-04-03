@@ -75,6 +75,7 @@ class Graph:
         verif={node:False for node in self.nodes} #dictionnaire indiquant les noeuds visités ou non, 
         #afin d'éviter, par exemple de faire des aller-retours entre deux noeuds.
         verif[src]=True
+
         def path(node, chemin):
             if node==dest:  #condition d'arrêt: si l'on est arrivé à destination, on retourne le chemin
                 return chemin
@@ -93,6 +94,7 @@ class Graph:
                     chemin.pop()
                     return path(chemin[-1],chemin)
             return None
+        
         return path(src,[src])
     
     '''
@@ -141,6 +143,7 @@ tous les noeuds ont été visités.
         g=0
         d=1
         eps=0.5
+
         def rechdicho(g,d): #fonction de recherhce dichotomique de la puissance
             if abs(g-d)<=eps:
                 if d-int(d)<0.5:    #on conditionne pour renvoyer un entier et non un flottant
@@ -157,6 +160,7 @@ tous les noeuds ont été visités.
         aretes=self.edges
         g=min([aretes[k][2] for k in range (len(aretes))])
         d=max([aretes[k][2] for k in range (len(aretes))])
+
         return rechdicho(g,d)
     
     '''
