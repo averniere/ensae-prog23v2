@@ -2,24 +2,19 @@ from graph import Graph, graph_from_file
 import time
 import os
 
-data_path = "input/"
-file_name = "network.01.in"
-
-#g = graph_from_file(data_path + file_name)
-#print(g)
-
-
 #Séance 2  
 
-'''
-On implémente une fonction permettant d'évaluer un temps moyens un graphe
-'''
+#Fonction permettant d'évaluer le temps d'exécution de la fonction min_power pour un trajet.
+
 def duration(filename, src, dest):
     g= graph_from_file(filename)
     start=time.perf_counter()
     g.min_power(src,dest)
     stop=time.perf_counter()
     return(stop-start)      
+
+#Fonction permettant d'évaluer le temps d'exécution de la fonction min_power pour l'ensemble des trajets
+#d'un fichier route.
 
 def duration_allroute(filename1, filename2,N):
     with open(filename1, "r") as file:
@@ -65,8 +60,9 @@ singletons contenant chaque noeud du graphe, find permettant de trouver quel est
 racine) d'un noeud et union permettant d'unir deux sous arbres, sans qu'ils ne forment de cycle.
     
 '''
+#Fonction qui créé initialement n singletons, où n est le nombre de noeuds du graphe.
 
-def makeset(parent, rank, n): #fonction qui créé initialement n singletons, où n est le nombre de noeuds
+def makeset(parent, rank, n): 
     for i in range(1,n+1):
         parent[i]=i
         rank[i]=0
@@ -80,16 +76,13 @@ def find(parent,k):
         return k
     return find(parent, parent[k])
 
-#Fonction permettant d'unir deux sous-arbres. On attribue à chaque noeud un rang: cela permet de déterminer
-#si, lorsque l'on doit unir deux sous arbres, on garde le noeud du premier ou du deuxième sous arbre 
-# comme origine de l'arbre résultant. Les noeuds à l'origine des sous arbresont le rang le plus élevé.
-# Le rang symbolise donc ici la profondeur d'un noeud dans un arbre.
+#Fonction permettant d'unir deux sous-arbres. 
 
 def union(parent, rank, i,j): 
-    root_i=find(parent,i)
-    root_j=find(parent,j)
+    root_i=find(parent,i) #racine du noeud i
+    root_j=find(parent,j) #racine du noeud j 
     if root_i!=root_j:
-        if root_i<root_j:
+        if root_i<root_j: # condition permettant de savoir si l'on choisi i ou j comme noeud le plus profond
             parent[root_i]=root_j
         else:
             parent[root_j]=root_i
@@ -99,13 +92,13 @@ def union(parent, rank, i,j):
 '''On écrit alors les fonctions nécessaires pour renvoyer un arbre couvrant de puissance minimale. 
 '''
 
-#Fonction permettant d'obtenir la liste des arêtes par ordre de puissance croissant
+#Fonction permettant d'obtenir la liste des arêtes par ordre de puissance croissant.
 
 def sort_by_power(g):
     L_sort_by_power=sorted(g.edges,key=lambda x:x[2])
     return L_sort_by_power
 
-#Algorithme inspiré de l'algorithme de Kruskal
+#Algorithme inspiré de l'algorithme de Kruskal.
 
 def kruskal(g):
     parent={}
