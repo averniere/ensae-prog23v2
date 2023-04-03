@@ -4,8 +4,8 @@ import numpy as np
 import random as rd 
 
 
-B=25*(10**3)
-# B=25*10**9
+#B=25*(10**3)
+B=25*(10**9)
 
 def truck_from_file(filename): # Fonction permettant d'ouvrir les fichiers trucks
     L=[]
@@ -31,6 +31,38 @@ def power_path(filename): # Fonction permettant d'ouvrir les fichiers routes.out
         L=file.read().splitlines()
         L0=[int(L[k]) for k in range (len(L))]
     return L0
+''' Fichiers routes.in et .out et camions'''
+
+truckfile0=r"C:\Users\auran\OneDrive\Documents\ensae\1A\Projet de programmation\ensae-prog23v2\input\trucks.0.in"
+truckfile1=r"C:\Users\auran\OneDrive\Documents\ensae\1A\Projet de programmation\ensae-prog23v2\input\trucks.1.in"
+truckfile2=r"C:\Users\auran\OneDrive\Documents\ensae\1A\Projet de programmation\ensae-prog23v2\input\trucks.2.in"
+
+routename1in=r"C:\Users\auran\OneDrive\Documents\ensae\1A\Projet de programmation\ensae-prog23v2\input\routes.1.in"
+routename1out=r"C:\Users\auran\OneDrive\Documents\ensae\1A\Projet de programmation\ensae-prog23v2\input\routes.1 (1).out"
+
+routename2in=r"C:\Users\auran\OneDrive\Documents\ensae\1A\Projet de programmation\ensae-prog23v2\input\routes.2.in"
+routename2out=r"C:\Users\auran\OneDrive\Documents\ensae\1A\Projet de programmation\ensae-prog23v2\input\routes.2.out"
+
+routename3in=r"C:\Users\auran\OneDrive\Documents\ensae\1A\Projet de programmation\ensae-prog23v2\input\routes.3.in"
+
+routename4in=r"C:\Users\auran\OneDrive\Documents\ensae\1A\Projet de programmation\ensae-prog23v2\input\routes.4.in"
+routename4out=r"C:\Users\auran\OneDrive\Documents\ensae\1A\Projet de programmation\ensae-prog23v2\input\routes.4.out"
+
+routename5in=r"C:\Users\auran\OneDrive\Documents\ensae\1A\Projet de programmation\ensae-prog23v2\input\routes.5.in"
+routename5out=r"C:\Users\auran\OneDrive\Documents\ensae\1A\Projet de programmation\ensae-prog23v2\input\routes.5.out"
+
+routename6in=r"C:\Users\auran\OneDrive\Documents\ensae\1A\Projet de programmation\ensae-prog23v2\input\routes.6.in"
+routename6out=r"C:\Users\auran\OneDrive\Documents\ensae\1A\Projet de programmation\ensae-prog23v2\input\routes.6.out"
+
+routename7in=r"C:\Users\auran\OneDrive\Documents\ensae\1A\Projet de programmation\ensae-prog23v2\input\routes.7.in"
+routename7out=r"C:\Users\auran\OneDrive\Documents\ensae\1A\Projet de programmation\ensae-prog23v2\input\routes.7.out"
+
+routename8in=r"C:\Users\auran\OneDrive\Documents\ensae\1A\Projet de programmation\ensae-prog23v2\input\routes.8.in"
+routename8out=r"C:\Users\auran\OneDrive\Documents\ensae\1A\Projet de programmation\ensae-prog23v2\input\routes.8.out"
+
+routename9in=r"C:\Users\auran\OneDrive\Documents\ensae\1A\Projet de programmation\ensae-prog23v2\input\routes.9.in"
+routename9out=r"C:\Users\auran\OneDrive\Documents\ensae\1A\Projet de programmation\ensae-prog23v2\input\routes.9.out"
+
 
 '''
 On créé une fonction qui créé une liste de camions mise à jour, ne contenant pas les camions "inutiles".
@@ -112,14 +144,11 @@ def final_knapsack(truckname,routename1,routename2):
     return buy, profit 
 
 '''Tests de l'algorithme naïf'''
-truckname=r"C:\Users\auran\OneDrive\Documents\ensae\1A\Projet de programmation\ensae-prog23v2\input\trucks.2.in"
-routename1=r"C:\Users\auran\OneDrive\Documents\ensae\1A\Projet de programmation\ensae-prog23v2\input\routes.1.in"
-routename2=r"C:\Users\auran\OneDrive\Documents\ensae\1A\Projet de programmation\ensae-prog23v2\input\routes.1 (1).out"
 
 #print(final_knapsack(truckname, routename1, routename2))
-camions1=truck_from_file(truckname)
-routename11=routes_from_file(routename1)
-powers=power_path(routename2)              
+#camions1=truck_from_file(truckname)
+#routename11=routes_from_file(routename1)
+#powers=power_path(routename2)              
 #print(best_camion(routename11,camions1,powers))
 #print(knapsack(routename11, camions1, powers))
 
@@ -171,7 +200,7 @@ def fitness(L, genome, budget):
     cost=0
     profit=0
     for i, l in enumerate(L):
-        if genome[i]==1:
+        if genome[i]==1 and l[3]-l[2]>0:
             cost+=l[2]
             profit+=(l[3]-l[2])
             if cost>budget:
@@ -190,6 +219,7 @@ def crossover(gen1,gen2):
     r=rd.randint(0,len(gen1)-1)
     return np.concatenate((gen1[:r],gen2[r:])), np.concatenate((gen1[r:],gen2[:r]))
 
+#Fonction de mutation d'un génome
 def mutation(genome, proba, val):
     for k in range (val):
         i=rd.randint(0,len(genome)-1)
@@ -197,15 +227,16 @@ def mutation(genome, proba, val):
             genome[i]=abs(genome[i]-1)
     return genome
 
+#Fonction résumant les étapes de la sélection naturelle
 def evolution(L, N, budget):
     proba=0.5
     length=len(L)
-    population=generate_population(N,length)
+    population=generate_population(N,length) #création d'une population
     for k in range (1000):
         population_sorted=sorted(population, key=lambda genome: fitness(L,genome,budget), reverse=True)
-        selected=population_sorted[:2]
-        ind_a,ind_b=crossover(selected[0], selected[1])
-        ind_c, ind_d=mutation(ind_a,proba,1), mutation(ind_b,proba,1)
+        selected=population_sorted[:2] #sélection des deux meilleurs individus
+        ind_a,ind_b=crossover(selected[0], selected[1]) #croisement
+        ind_c, ind_d=mutation(ind_a,proba,1), mutation(ind_b,proba,1) #mutation 
         selected+=[ind_a,ind_b,ind_c,ind_d]
         population=selected
     population=sorted(population,key=lambda genome:fitness(L,genome, budget), reverse=True)
@@ -230,5 +261,6 @@ def results(fileroute,filetrucks,filepowers,budget,N=10):
     profit=fitness(L,best_ind,budget)
     return Buy,profit 
 
-print(results(routename1,truckname,routename2,B,N=10))
+#print(results(routename1in,truckfile1,routename1out,B,N=10))
 
+print(results(routename4in,truckfile1, routename4out,B,N=10))
