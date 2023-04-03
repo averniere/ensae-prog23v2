@@ -68,9 +68,8 @@ class Graph:
         self.graph[node2].append((node1, power_min, dist))
         self.nb_edges += 1
     
- #On veut trouver s'il existe un chemin que le camion puisse parcourir avec sa puissance power et s'il 
-#existe quel est ce chemin. Pour ce, on construit une sous fonction renvoyant le chemin, s'il existe,
-#entre un noeud et la destination. 
+#Fonction prenant en argument un trajet (src, dest) à effectuer et la puissance power d'un camion,
+#renvoyant si le camion peut effectuer le trajet et, si c'est le cas, un chemin. 
 
     def get_path_with_power(self, src, dest, power):
         verif={node:False for node in self.nodes} #dictionnaire indiquant les noeuds visités ou non, 
@@ -97,15 +96,7 @@ class Graph:
         return path(src,[src])
     
     '''
-Analyse de la complexité de get_path_with power:
-On note n le nombre de noeuds du graphe et m le nombre de cul-de-sacs. 
-A chaque fois que l'on tombe dans une impasse, ie un noeud qui n'a pas d'autre voisin que celui d'où 
-le camion vient, le camion doit retourner en arrière et reparcourir les voisins du noeud précédent, 
-jusqu'à trouver, ou non, un nouveau chemin par où passer. On peut majorer le nombre de fois où l'on 
-effectue les opérations de la boucle for (nombre d'opérations borné, donc en O(1) à chaque itération) 
-par n*m. D'où une complexité en O(n*m) dans le cas où le nombre d'impasses est important.
-Toutefois, il est rare qu'un graphe contienne un grand nombre d'impasses. Il est donc raisonnable d'
-envisager une complexité en O(n) où n est le nombre de noeud du graphe.
+Complexité de l'algorithme: cf compte rendu.
     '''
     '''
 Détermination des composantes connexes d'un graphe:
@@ -140,14 +131,8 @@ tous les noeuds ont été visités.
         """
         return set(map(frozenset, self.connected_components()))
     
-    '''
-On détermine la puissance minimale nécessaire pour effectuer un trajet par recherche dichotomique:
-on utilise pour ce, la fonction get_path_with_power qui détermine si un camion avec une certaine 
-puissance peut effectuer un certain trajet et renvoie le chemin si c'est le cas. L'idée est de trouver
-un intervalle de puissances de départ, pour une partie desquelles le camion peut effectuer le trajet
-voulu, et de réduire cet intervalle en le divisant successivement par deux, jusqu'à approcher la 
-puissance minimale recherchée.
-    '''
+#Détermination de la puissance minimale nécessaire pour effectuer un trajet (src, dest) par dichotomie
+#à l'aide de la fonction get_path_with_power.
     
     def min_power(self, src, dest):
         """
@@ -159,12 +144,12 @@ puissance minimale recherchée.
         def rechdicho(g,d): #fonction de recherhce dichotomique de la puissance
             if abs(g-d)<=eps:
                 if d-int(d)<0.5:    #on conditionne pour renvoyer un entier et non un flottant
-                    return self.get_path_with_power2(src,dest,d),int(d)
+                    return self.get_path_with_power(src,dest,d),int(d)
                 else:  
-                    return self.get_path_with_power2(src,dest,d),int(d)+1   
+                    return self.get_path_with_power(src,dest,d),int(d)+1   
             while abs(g-d)>eps:
                 m=(d+g)/2
-                if self.get_path_with_power2(src,dest,m)!=None:
+                if self.get_path_with_power(src,dest,m)!=None:
                     d=m
                 else:
                     g=m
@@ -175,21 +160,8 @@ puissance minimale recherchée.
         return rechdicho(g,d)
     
     '''
-Complexité de l'algorithme:
-Déterminons d'abord la complexité de la fonction de recherche dichotomique. Etant donné que l'on divise 
-à chaque fois par deux la taille de l'intervalle, originalement de taille d-g, jusqu'à obtenir une 
-longueur d'intervalle inférieure à eps, le nombre total d'itération N effectué vérifie:
-N=E(log2((d-g)/eps)) +1 où E désigne la partie entière
-D'où une complexité en O(log2((d-g)/eps)), si l'on fait abstraction que l'on effectue à chaque fois, au
-sein de la boucle while la fonction get_path_with power, dont on connaît la complexité. On en déduit une
-complexité de O(n*log2((d-g)/eps)) pour la fonction rech_dico, avec n le nombre total de noeuds du graphe.
-On note à présent p la puissance maximale existante sur le graphe. 
-Dans le pire des cas, l'on doit passer par l'arête de puissance p. Si p>1 on doit parcourir la boucle
-while de la fin du code E(log10(p))+1 fois, soit un coût de O(log10(p)).
-On connaît la complexité de get_path_with_power appelée environ log10(p) fois dans min_power. On en déduit
-la complexité totale de l'algorithme: O(n*(log10(p)+log2((d-g)/eps)))~O(n*log2((d-g)/eps)) si nlog10(p) 
-est négligeable devant l'autre terme.
-    '''
+Complexité de l'algorithme:cf compte rendu.
+'''
 
 
 def graph_from_file(filename):
