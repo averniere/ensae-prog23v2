@@ -1,6 +1,7 @@
 from graph import Graph, graph_from_file
 import time
 import os
+import numpy as np
 
 #Séance 2  
 
@@ -113,7 +114,9 @@ def kruskal(g):
             new_g.add_edge(n1,n2,g_sorted[k][2])
             union(parent,rank,n1,n2)
     return new_g
-    
+
+'''Complexité de l'algorithme: cf compte rendu.
+'''
 
 '''
 Question 14
@@ -147,12 +150,7 @@ def dictionnaries(g):
     return parents, depths
 
 '''
-Complexité de l'algorithme:
-On note n le nombre de noeud de l'arbre.
-Dans cet algorithme on parcourt chaque noeud du graphe, jusqu'à ce qu'ils soient tous marqués. Pour chacun 
-des noeuds, on exécute une boucle for sur l'ensemble des voisins des noeuds. On en déduit une complexité 
-en O(n*avg(nb_ngb)) où avg(nb_ngb) est le nombre moyen de voisins par noeud du graphe. S'agissant d'un arbre
-il est raisonnable de considérer que avg(ng_ngb) est petit, on peut donc approximer la complexité par O(n)
+Complexité de l'algorithme: cf rapport.
 '''
 '''
 On écrit à présent une fonction retournant la puissance nécessaire pour effectuer le trajet dans l'arbre.
@@ -170,16 +168,24 @@ def new_get_power(parents, depths, src,dest):
         n1, n2=src, dest
     else:
         n1, n2=dest, src
+    path1=[n1]
+    path2=[n2]
     res=depths[n2]
     while depths[n1]!=res: #tant que les profondeurs des noeuds dans le graphe sont différentes
         power=max(parents[n1][1],power) #on met à jour la puissance car l'on est en train de parcourir le chemin entre les noeuds
-        n1=parents[n1][0] #on remonte dans l'arbre 
+        n1=parents[n1][0] #on remonte dans l'arbre
+        path1.append(n1) 
     while n1!=n2: #lorsque les profondeurs sont égales mais que les noeuds sont différents
         power=max(parents[n1][1],power) #mise à jour de la puissance
         power=max(parents[n2][1],power) #mise à jour de la puissance
         n1=parents[n1][0] #on remonte simultanément dans le graphe
         n2=parents[n2][0]
-    return power
+        path1.append(n1)
+        path2.insert(0,n2)
+    path=np.concatenate((path1,path2))
+    if path[0]==dest:
+        path=[node for node in reversed(path)]
+    return power, path
 
 
 '''
@@ -204,7 +210,7 @@ def test_time(filename1, filename2, filename3):
         parents, depths=dictionnaries(new_g)
         for _ in range (nb_trajet):
             src, dest, cost=list(map(int, file.readline().split()))
-            pow=new_get_power(parents,depths, src, dest)
+            pow,path=new_get_power(parents,depths, src, dest)
         stop=time.perf_counter()
         tot_time+=(stop-start)
     return tot_time
