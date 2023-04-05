@@ -3,11 +3,14 @@ from main import kruskal,new_get_power
 import numpy as np
 import random as rd 
 
+'''Budget'''
 
-#B=25*(10**3)
 B=25*(10**9)
 
-def truck_from_file(filename): # Fonction permettant d'ouvrir les fichiers trucks
+''' Fonctions permettant d'ouvrir les fichiers dont nous aurons besoin'''
+
+# Fonction permettant d'ouvrir les fichiers trucks
+def truck_from_file(filename): 
     L=[]
     with open(filename, "r") as file:
         nb_truck=map(int, file.readline().split())
@@ -17,7 +20,8 @@ def truck_from_file(filename): # Fonction permettant d'ouvrir les fichiers truck
             L.append((power,cost))
     return L
 
-def routes_from_file(filename): # Fonction permettant d'ouvrir les fichiers routes.in  
+# Fonction permettant d'ouvrir les fichiers routes.in 
+def routes_from_file(filename):  
     L=[]
     with open(filename, "r") as file:
         nb_trajet=map(int, file.readline().split())
@@ -26,11 +30,13 @@ def routes_from_file(filename): # Fonction permettant d'ouvrir les fichiers rout
             L.append([(src,dest),profit])
     return L
 
-def power_path(filename): # Fonction permettant d'ouvrir les fichiers routes.out
+# Fonction permettant d'ouvrir les fichiers routes.out
+def power_path(filename): 
     with open(filename, "r") as file:
         L=file.read().splitlines()
         L0=[int(L[k]) for k in range (len(L))]
     return L0
+
 ''' Fichiers routes.in et .out et camions'''
 
 truckfile0=r"C:\Users\auran\OneDrive\Documents\ensae\1A\Projet de programmation\ensae-prog23v2\input\trucks.0.in"
@@ -63,36 +69,32 @@ routename8out=r"C:\Users\auran\OneDrive\Documents\ensae\1A\Projet de programmati
 routename9in=r"C:\Users\auran\OneDrive\Documents\ensae\1A\Projet de programmation\ensae-prog23v2\input\routes.9.in"
 routename9out=r"C:\Users\auran\OneDrive\Documents\ensae\1A\Projet de programmation\ensae-prog23v2\input\routes.9.out"
 
+''' Résolution du problème'''
 
-'''
-On créé une fonction qui créé une liste de camions mise à jour, ne contenant pas les camions "inutiles".
-On peut considérer un camion comme inutile lorsqu'il a une puissance inférieure ou égale à la puissance 
-d'un camion existant mais un coût supérieur à ce même camion.
-'''
+#Fonction créant une liste de camions de laquelle ont été retirés les camions inutiles.
+
 def tri_camion(camions):
     c=camions[-1][1]
     p=camions[-1][0]
     new_list=[(p,c)]
-    for power, cost in reversed(camions):
-        if power<=p and cost<c:
+    for power, cost in reversed(camions): #les camions dans les fichiers sont classés par ordre de puissance croissant
+        if power<=p and cost<c: # on garde le camion tant que pour une puissance inférieure ou égale, son coût est strictement inférieur
             new_list.insert(0,(power,cost))
         c=cost
         p=power
     return new_list
 
-'''
-On définit une fonction qui renvoie pour un fichier "routes" le dictionnaire qui associe aux trajets
-effectuables par au moins l'un des camion, la puissance, le cout et l'utilité du camion qui maximise 
-cette dernière. Elle prend en argument la liste des camions, la liste des trajets et la liste des 
-puissances minimales nécessaires pour effectuer ces trajets. 
-'''
+#Fonction renvoyant une liste des couples trajet-camion optimaux lorsqu'au moins un camion peut effectuer
+#le trajet.
 
 def best_camion(routes,camions,puissances_min):
-    #d={}
+    '''
+    Prend en argument: liste des routes, camions et puissances minimales
+    Renvoie: liste des couples trajet-camion optimaux
+    '''
     L=[]
     for k in range (len(routes)):
         profit=routes[k][1]
-        #print(profit)
         src,dest=routes[k][0]
         power=puissances_min[k]
         p,c= False, max([camions[k][1] for k in range (len(camions))])
@@ -102,21 +104,21 @@ def best_camion(routes,camions,puissances_min):
                 p=camions[j][0]
                 c=camions[j][1]
         if p!=False: #Si l'on a trouvé au moins un camion pouvant parcourir le trajet 
-            #d[(src,dest)]=(p,c,profit)
             res=profit/c
             L.append([(src, dest),p,c,profit,res])
     return L
 
-''' Implementation of the greedy algorithm'''
+
+''' Implémentation de l'algorithme glouton'''
 
 def knapsack (routes, camions, puissances_min):
     income=B
-    Buy={camions[k][0]:[0] for k in range (len(camions))}
+    Buy={camions[k][0]:[0] for k in range (len(camions))} # Dictionnaire qui a chaque camion associe la quantité à acheter et les trajets à effectuer
     profit=0
     L=best_camion(routes, camions, puissances_min)
     new_L=sorted(L, key=lambda x:x[4], reverse=True)
     #new_L=sorted(L, key=lambda x:x[3], reverse=True)
-    stop=False
+    stop=False # Variable indiquant quand on dépasse le budget
     k=1
     while stop!=True:
         src, dest=new_L[k][0]
@@ -145,7 +147,9 @@ def final_knapsack(truckname,routename1,routename2):
     return buy, profit 
 
 '''Tests de l'algorithme naïf'''
-print(final_knapsack(truckfile1, routename4in, routename4out))
+
+#print(final_knapsack(truckfile1, routename4in, routename4out))
+#print(final_knapsack(truckfile2, routename9in, routename9out))
 #print(final_knapsack(truckfile2, routename2in, routename2out))
 #camions1=truck_from_file(truckname)
 #routename11=routes_from_file(routename1)
@@ -153,7 +157,7 @@ print(final_knapsack(truckfile1, routename4in, routename4out))
 #print(best_camion(routename11,camions1,powers))
 #print(knapsack(routename11, camions1, powers))
 
-''' Implementation of the dynamic algorithm'''
+''' Implémentation de la méthode de programmation dynamique'''
 
 def dynamic_prog(routes, camions, powers):
     L=best_camion(routes, camions, powers)
@@ -183,7 +187,7 @@ def knapsack2(fileroute,filetruck, filepowers):
 
 #print(knapsack2(routename1,truckname,routename2))
 
-''' Implementation of a solution inspired by the genetic algorithms'''
+''' Implémentation d'une solution inspirée par les alogrithmes génétiques'''
 
 #Fonction générant un génome de taille length=len(best_camions(routes, camions, puissances)). Obtenir la
 #valeur 1 (resp.0) au i-ème indice, signifie que l'on choisi l'association camion-trajet de best_camions[i]
@@ -234,6 +238,8 @@ def evolution(L, N, budget):
     proba=0.5
     length=len(L)
     population=generate_population(N,length) #création d'une population
+    while np.max([fitness(L,genome,budget) for genome in population])==0:
+        population=generate_population(N,length)
     for k in range (1000):
         population_sorted=sorted(population, key=lambda genome: fitness(L,genome,budget), reverse=True)
         selected=population_sorted[:2] #sélection des deux meilleurs individus
@@ -241,6 +247,7 @@ def evolution(L, N, budget):
         ind_c, ind_d=mutation(ind_a,proba,1), mutation(ind_b,proba,1) #mutation 
         selected+=[ind_a,ind_b,ind_c,ind_d]
         population=selected
+        print(population)
     population=sorted(population,key=lambda genome:fitness(L,genome, budget), reverse=True)
     return population
 
@@ -252,17 +259,18 @@ def results(fileroute,filetrucks,filepowers,budget,N=10):
     best_pop=evolution(L,N,budget)
     best_ind=best_pop[0]
     Buy={}
-    for i,l in enumerate(L):
-        if best_ind[i]==1:
-            src,dest=l[0]
-            if l[1] not in Buy.keys():
-                Buy[l[1]]=[1,(src,dest)]
-            else:
-                Buy[l[1]][0]+=1
-                Buy[l[1]].append((src,dest))
     profit=fitness(L,best_ind,budget)
+    if profit!=0:
+        for i,l in enumerate(L):
+            if best_ind[i]==1:
+                src,dest=l[0]
+                if l[1] not in Buy.keys():
+                    Buy[l[1]]=[1,(src,dest)]
+                else:
+                    Buy[l[1]][0]+=1
+                    Buy[l[1]].append((src,dest))
     return Buy,profit 
 
 #print(results(routename1in,truckfile1,routename1out,B,N=10))
-
+print(results(routename9in, truckfile2, routename9out,B,N=10))
 #print(results(routename4in,truckfile1, routename4out,B,N=10))
