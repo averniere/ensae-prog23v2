@@ -145,8 +145,8 @@ def final_knapsack(truckname,routename1,routename2):
     return buy, profit 
 
 '''Tests de l'algorithme naïf'''
-
-#print(final_knapsack(truckname, routename1, routename2))
+print(final_knapsack(truckfile1, routename4in, routename4out))
+#print(final_knapsack(truckfile2, routename2in, routename2out))
 #camions1=truck_from_file(truckname)
 #routename11=routes_from_file(routename1)
 #powers=power_path(routename2)              
