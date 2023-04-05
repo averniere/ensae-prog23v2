@@ -115,7 +115,7 @@ def knapsack (routes, camions, puissances_min):
     profit=0
     L=best_camion(routes, camions, puissances_min)
     new_L=sorted(L, key=lambda x:x[4], reverse=True)
-    print(new_L)
+    #new_L=sorted(L, key=lambda x:x[3], reverse=True)
     stop=False
     k=1
     while stop!=True:
@@ -123,13 +123,14 @@ def knapsack (routes, camions, puissances_min):
         pow=new_L[k][1]
         cost=new_L[k][2]
         earn=new_L[k][3]
-        if income-cost>=0 and earn-cost>0:
+        if income-cost>=0:
             Buy[pow].append((src, dest))
             Buy[pow][0]+=1
-            profit+=(earn-cost)
+            #profit+=(earn-cost)
+            profit+=earn
             income-=cost
             k+=1
-        if income-cost<0 or earn-cost<0:
+        if income-cost<0:
             k+=1
         if k==len(new_L):
             stop=True
@@ -162,7 +163,7 @@ def dynamic_prog(routes, camions, powers):
         for j in range (B+1):
             cost=L[i-1][2]
             earn=L[i-1][3]
-            profit=earn-cost
+            profit=earn
             if i==0 or j==0:
                 table[i][j]=0
             elif cost<=j:
@@ -200,9 +201,10 @@ def fitness(L, genome, budget):
     cost=0
     profit=0
     for i, l in enumerate(L):
-        if genome[i]==1 and l[3]-l[2]>0:
+        if genome[i]==1:
             cost+=l[2]
-            profit+=(l[3]-l[2])
+            #profit+=(l[3]-l[2])
+            profit+=l[3]
             if cost>budget:
                 return 0
     return profit
@@ -263,4 +265,4 @@ def results(fileroute,filetrucks,filepowers,budget,N=10):
 
 #print(results(routename1in,truckfile1,routename1out,B,N=10))
 
-print(results(routename4in,truckfile1, routename4out,B,N=10))
+#print(results(routename4in,truckfile1, routename4out,B,N=10))
