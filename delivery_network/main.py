@@ -56,9 +56,7 @@ routes.10 ~
 '''
 Question 12
 
-On définit les fonctions permettant d'appliquer la méthode UnionFind: makeset permettant de créer des 
-singletons contenant chaque noeud du graphe, find permettant de trouver quel est le noeud parent (la
-racine) d'un noeud et union permettant d'unir deux sous arbres, sans qu'ils ne forment de cycle.
+On définit les fonctions permettant d'appliquer la méthode UnionFind: makeset, find et union. 
     
 '''
 #Fonction qui créé initialement n singletons, où n est le nombre de noeuds du graphe.
@@ -159,6 +157,11 @@ deux noeuds est unique, la puissance renvoyée correspond donc bien ici à la pu
 le trajet.)
 '''
 def new_get_power(parents, depths, src,dest): 
+    ''' 
+    Prend en argument les listes des parents et des profondeurs des noeuds de l'arbre et le trajet
+    (src, dest).
+    Renvoie la puissance minimale et le chemin.
+    '''
     power=0
     depth_src=depths[src]
     depth_dest=depths[dest]
@@ -168,8 +171,7 @@ def new_get_power(parents, depths, src,dest):
         n1, n2=src, dest
     else:
         n1, n2=dest, src
-    path1=[n1]
-    path2=[n2]
+    path1, path2=[n1], [n2]
     res=depths[n2]
     while depths[n1]!=res: #tant que les profondeurs des noeuds dans le graphe sont différentes
         power=max(parents[n1][1],power) #on met à jour la puissance car l'on est en train de parcourir le chemin entre les noeuds
@@ -189,17 +191,11 @@ def new_get_power(parents, depths, src,dest):
 
 
 '''
-Dans cette fonction, on parcourt au maximum l'ensemble des noeuds de l'arbre, à travers les boucles while.
-De plus, on effectue des opérations bornées au sein des boucles. D'où une complexité dans le pire des cas en 
-O(n). 
-Pour déterminer la puissance minimale pour parcourir un chemin au sein d'un graphe, on effectue successivement
-les fonctions dictionnaries et new_get_power, ayant chacune dans le meilleur des cas une complexité en 
-O(n). D'où une complexité linéaire en O(n) pour déterminer la puissance minimale d'un trajet. 
-'''
-
-'''
 Question 15
 '''
+#Fonction renvoyant les temps d'exécution de la nouvelle méthode pour déterminer puissance minimale et
+#chemin nécessaires pour effectuer les trajets des fichiers routes.
+
 def test_time(filename1, filename2, filename3):
     g= graph_from_file(filename2)
     with open(filename1, "r") as file:
@@ -215,6 +211,8 @@ def test_time(filename1, filename2, filename3):
         tot_time+=(stop-start)
     return tot_time
 
+#Fonction permettant d'écrire les puissances minimales des trajets dans les fichiers routes.out.
+
 def write_in_routes(filename1, filename2, filename3):
     g= graph_from_file(filename2)
     with open(filename1, "r") as file:
@@ -224,7 +222,7 @@ def write_in_routes(filename1, filename2, filename3):
         parents, depths=dictionnaries(new_g)
         for _ in range (nb_trajet):
             src, dest, cost=list(map(int, file.readline().split()))
-            pow=new_get_power(parents,depths, src, dest)
+            pow,path=new_get_power(parents,depths, src, dest)
             if len(otherfile.readlines())!=nb_trajet:
                     otherfile.write(str(pow)+"\n")
         otherfile.close()

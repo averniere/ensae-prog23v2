@@ -100,6 +100,7 @@ class Graph:
     '''
 Complexité de l'algorithme: cf compte rendu.
     '''
+    
     '''
 Détermination des composantes connexes d'un graphe:
 On écrit une fonction récursive permettant de déterminer la composante connexe dans laquelle se trouve 
