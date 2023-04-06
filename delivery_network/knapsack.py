@@ -118,7 +118,6 @@ def knapsack (routes, camions, puissances_min):
     profit=0
     L=best_camion(routes, camions, puissances_min)
     new_L=sorted(L, key=lambda x:x[4], reverse=True)
-    #new_L=sorted(L, key=lambda x:x[3], reverse=True)
     stop=False # Variable indiquant quand on dépasse le budget
     k=1
     while stop!=True:
@@ -126,16 +125,15 @@ def knapsack (routes, camions, puissances_min):
         pow=new_L[k][1]
         cost=new_L[k][2]
         earn=new_L[k][3]
-        if income-cost>=0:
+        if income-cost>=0: # Si l'on peut acheter le camion
             Buy[pow].append((src, dest))
             Buy[pow][0]+=1
-            #profit+=(earn-cost)
             profit+=earn
             income-=cost
             k+=1
         if income-cost<0:
             k+=1
-        if k==len(new_L):
+        if k==len(new_L): # Arrêt de la boucle
             stop=True
     return Buy, profit
 
@@ -196,8 +194,9 @@ def generate_genome(length):
 def generate_population(N, length):
     return [generate_genome(length) for k in range (N)]
 
-#Fonction déterminant pour chaque génome le profit pouvant être réalisé et retournant par défaut 0 si
-#l'achat des camions nécessaires dépasse le budget.
+#Fonction déterminant pour chaque génome le profit pouvant être réalisé et ne prenant pas en compte les
+#camions dont l'achat dépasse le budget (on ne renvoie pas immédiatement 0 pour éviter d'obtenir un profit
+# nul à la fin du processus).
 
 def fitness(L, genome, budget):
     cost=0
@@ -249,7 +248,7 @@ def evolution(L, N, budget):
         selected=population_sorted[:2] #sélection des deux meilleurs individus
         ind_a,ind_b=crossover(selected[0], selected[1]) #croisement
         ind_c, ind_d=mutation(ind_a,proba,1), mutation(ind_b,proba,1) #mutation 
-        selected+=[ind_a,ind_b,ind_c,ind_d]
+        selected+=[ind_a,ind_b,ind_c,ind_d] #sélection
         population=selected
         print(k)
     population=sorted(population,key=lambda genome:fitness(L,genome, budget), reverse=True)
@@ -281,4 +280,4 @@ def results(fileroute,filetrucks,filepowers,budget,N=10):
 #print(results(routename4in,truckfile0, routename4out,B,N=10))
 #print(results(routename2in,truckfile1,routename2out,B,N=10))
 #print(results(routename8in,truckfile2,routename8out,B,N=10))
-print(results(routename3in,truckfile2,routename3out,B,N=10))
+print(results(routename9in,truckfile2,routename9out,B,N=10))
