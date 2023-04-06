@@ -100,7 +100,31 @@ class Graph:
     '''
 Complexité de l'algorithme: cf compte rendu.
     '''
-    
+    def get_path_with_power_bonus(self, src,dest, power):
+        distances={node:float('inf') for node in self.nodes}
+        verif=[src]
+        distances[src]=0
+        path=[src]
+        n=src
+        while len(verif)<len(self.nodes):
+            min_dist=float('inf')
+            for l_ngb in self.graph[n]:
+                d=l_ngb[2]
+                if distances[l_ngb[0]]>d+distances[n] and l_ngb[1]<=power:
+                    distances[l_ngb[0]]=d+distances[n]
+                if distances[l_ngb[0]]<min_dist:
+                    min_dist=distances[l_ngb[0]]
+                    min_node=l_ngb[0]
+            if min_dist!=float('inf'):
+                path.append(min_node)
+                verif.append(min_node)
+                n=min_node
+            else:
+                return None
+        return path
+
+
+
     '''
 Détermination des composantes connexes d'un graphe:
 On écrit une fonction récursive permettant de déterminer la composante connexe dans laquelle se trouve 
