@@ -50,6 +50,7 @@ routename2in=r"C:\Users\auran\OneDrive\Documents\ensae\1A\Projet de programmatio
 routename2out=r"C:\Users\auran\OneDrive\Documents\ensae\1A\Projet de programmation\ensae-prog23v2\input\routes.2.out"
 
 routename3in=r"C:\Users\auran\OneDrive\Documents\ensae\1A\Projet de programmation\ensae-prog23v2\input\routes.3.in"
+routename3out=r"C:\Users\auran\OneDrive\Documents\ensae\1A\Projet de programmation\ensae-prog23v2\input\routes.3.out"
 
 routename4in=r"C:\Users\auran\OneDrive\Documents\ensae\1A\Projet de programmation\ensae-prog23v2\input\routes.4.in"
 routename4out=r"C:\Users\auran\OneDrive\Documents\ensae\1A\Projet de programmation\ensae-prog23v2\input\routes.4.out"
@@ -147,15 +148,13 @@ def final_knapsack(truckname,routename1,routename2):
     return buy, profit 
 
 '''Tests de l'algorithme naïf'''
-
+#print(final_knapsack(truckfile2, routename8in, routename8out))
 #print(final_knapsack(truckfile1, routename4in, routename4out))
+#print(final_knapsack(truckfile0, routename4in, routename4out))
 #print(final_knapsack(truckfile2, routename9in, routename9out))
-#print(final_knapsack(truckfile2, routename2in, routename2out))
-#camions1=truck_from_file(truckname)
-#routename11=routes_from_file(routename1)
-#powers=power_path(routename2)              
-#print(best_camion(routename11,camions1,powers))
-#print(knapsack(routename11, camions1, powers))
+#print(final_knapsack(truckfile0, routename2in, routename2out))
+#print(final_knapsack(truckfile0, routename1in, routename1out))
+#print(final_knapsack(truckfile1, routename9in, routename9out))
 
 ''' Implémentation de la méthode de programmation dynamique'''
 
@@ -185,9 +184,7 @@ def knapsack2(fileroute,filetruck, filepowers):
     return dynamic_prog(routes, trucks, powers)
 
 
-#print(knapsack2(routename1,truckname,routename2))
-
-''' Implémentation d'une solution inspirée par les alogrithmes génétiques'''
+''' Implémentation d'une solution inspirée par les algorithmes génétiques'''
 
 #Fonction générant un génome de taille length=len(best_camions(routes, camions, puissances)). Obtenir la
 #valeur 1 (resp.0) au i-ème indice, signifie que l'on choisi l'association camion-trajet de best_camions[i]
@@ -201,17 +198,23 @@ def generate_population(N, length):
 
 #Fonction déterminant pour chaque génome le profit pouvant être réalisé et retournant par défaut 0 si
 #l'achat des camions nécessaires dépasse le budget.
+
 def fitness(L, genome, budget):
     cost=0
     profit=0
-    for i, l in enumerate(L):
-        if genome[i]==1:
-            cost+=l[2]
-            #profit+=(l[3]-l[2])
-            profit+=l[3]
-            if cost>budget:
-                return 0
+    stop=False
+    k=0
+    while stop!=True:
+        if genome[k]==1:
+            c=cost+L[k][2]
+            if c<=budget:
+                cost=c
+                profit+=L[k][3]
+        k+=1
+        if k==len(L):
+            stop=True
     return profit
+    
 
 #Sélection d'une paire de génomes ayant presque sûrement les meilleurs profits parmi la population de départ.
 #Cela équivaut à la sélection des meilleurs individus pour la reproduction.
@@ -240,6 +243,7 @@ def evolution(L, N, budget):
     population=generate_population(N,length) #création d'une population
     while np.max([fitness(L,genome,budget) for genome in population])==0:
         population=generate_population(N,length)
+        print('encore')
     for k in range (1000):
         population_sorted=sorted(population, key=lambda genome: fitness(L,genome,budget), reverse=True)
         selected=population_sorted[:2] #sélection des deux meilleurs individus
@@ -247,7 +251,7 @@ def evolution(L, N, budget):
         ind_c, ind_d=mutation(ind_a,proba,1), mutation(ind_b,proba,1) #mutation 
         selected+=[ind_a,ind_b,ind_c,ind_d]
         population=selected
-        print(population)
+        print(k)
     population=sorted(population,key=lambda genome:fitness(L,genome, budget), reverse=True)
     return population
 
@@ -256,6 +260,7 @@ def results(fileroute,filetrucks,filepowers,budget,N=10):
     trucks=truck_from_file(filetrucks)
     powers=power_path(filepowers)
     L=best_camion(routes,trucks,powers)
+    print(len(L))
     best_pop=evolution(L,N,budget)
     best_ind=best_pop[0]
     Buy={}
@@ -272,5 +277,8 @@ def results(fileroute,filetrucks,filepowers,budget,N=10):
     return Buy,profit 
 
 #print(results(routename1in,truckfile1,routename1out,B,N=10))
-print(results(routename9in, truckfile2, routename9out,B,N=10))
-#print(results(routename4in,truckfile1, routename4out,B,N=10))
+#print(results(routename9in, truckfile1, routename9out,B,N=10))
+#print(results(routename4in,truckfile0, routename4out,B,N=10))
+#print(results(routename2in,truckfile1,routename2out,B,N=10))
+#print(results(routename8in,truckfile2,routename8out,B,N=10))
+print(results(routename3in,truckfile2,routename3out,B,N=10))

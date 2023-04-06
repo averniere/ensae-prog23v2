@@ -251,3 +251,7 @@ routes.10=
 #print(test_time(filename8_1,filename8_2,filename8_3))
 #print(test_time(filename9_1,filename9_2,filename9_3))
 #print(test_time(filename10_1,filename10_2,filename10_3))
+#file2=r"C:\Users\auran\OneDrive\Documents\ensae\1A\Projet de programmation\ensae-prog23v2\input\network.3.in"
+#file1=r"C:\Users\auran\OneDrive\Documents\ensae\1A\Projet de programmation\ensae-prog23v2\input\routes.3.in"
+#file3=r"C:\Users\auran\OneDrive\Documents\ensae\1A\Projet de programmation\ensae-prog23v2\input\routes.3.out"
+#write_in_routes(file1, file2, file3)

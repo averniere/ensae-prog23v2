@@ -28,6 +28,7 @@ class Graph:
         self.graph = dict([(n, []) for n in nodes])
         self.nb_nodes = len(nodes)
         self.nb_edges = 0
+        self.edges=[]
     
 
     def __str__(self):
@@ -100,30 +101,6 @@ class Graph:
     '''
 Complexité de l'algorithme: cf compte rendu.
     '''
-    def get_path_with_power_bonus(self, src,dest, power):
-        distances={node:float('inf') for node in self.nodes}
-        verif=[src]
-        distances[src]=0
-        path=[src]
-        n=src
-        while len(verif)<len(self.nodes):
-            min_dist=float('inf')
-            for l_ngb in self.graph[n]:
-                d=l_ngb[2]
-                if distances[l_ngb[0]]>d+distances[n] and l_ngb[1]<=power:
-                    distances[l_ngb[0]]=d+distances[n]
-                if distances[l_ngb[0]]<min_dist:
-                    min_dist=distances[l_ngb[0]]
-                    min_node=l_ngb[0]
-            if min_dist!=float('inf'):
-                path.append(min_node)
-                verif.append(min_node)
-                n=min_node
-            else:
-                return None
-        return path
-
-
 
     '''
 Détermination des composantes connexes d'un graphe:
@@ -149,7 +126,6 @@ tous les noeuds ont été visités.
             if not vnodes[node]:
                 connected_components.append(component(node))
         return connected_components
-
 
     def connected_components_set(self):
         """
@@ -221,9 +197,11 @@ def graph_from_file(filename):
             if len(edge) == 3:
                 node1, node2, power_min = edge
                 g.add_edge(node1, node2, power_min) # will add dist=1 by default
+                g.edges.append(edge)
             elif len(edge) == 4:
                 node1, node2, power_min, dist = edge
                 g.add_edge(node1, node2, power_min, dist)
+                g.edges.append(edge)
             else:
                 raise Exception("Format incorrect")
     return g
