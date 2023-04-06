@@ -134,6 +134,11 @@ tous les noeuds ont été visités.
         """
         return set(map(frozenset, self.connected_components()))
     
+    '''
+Complexité de l'algorithme: cf compte rendu.
+    '''
+
+    
 #Détermination de la puissance minimale nécessaire pour effectuer un trajet (src, dest) par dichotomie
 #à l'aide de la fonction get_path_with_power.
     
